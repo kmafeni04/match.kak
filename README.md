@@ -1,9 +1,12 @@
 # match.kak
 Helix like match commnands plus hacky html tag support
 
-## Usage
-
 TODO: Video Showcase
+
+## Installation
+Copy [match.kak](./match.kak) into your autoload directory
+
+## Usage
 
 Suggested keymap
 ```kak
