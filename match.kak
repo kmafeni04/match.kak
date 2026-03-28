@@ -94,7 +94,7 @@ define-command _match-surround-replace-tag -hidden %{
 }
 
 define-command _match-surround-replace -hidden %{
-  info -title "Surround replce char" \
+  info -title "Surround replace char" \
 "enter char to replace with
  - <t> will replace selection with markup tag
 "
