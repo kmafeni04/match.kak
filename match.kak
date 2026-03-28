@@ -5,7 +5,7 @@ B,{,}:         Braces block
 r,[,]:         Bracket block
 a,<lt>,<gt>:   Angle block
 <dquote>,Q:    Double quote string
-<qoute>,q:     Single quote string
+<quote>,q:     Single quote string
 `,g:           Grave quote string
 w:             word
 <a-w>:         WORD
@@ -20,7 +20,7 @@ B,{,}:         Braces block
 r,[,]:         Bracket block
 a,<lt>,<gt>:   Angle block
 <dquote>,Q:    Double quote string
-<qoute>,q:     Single quote string
+<quote>,q:     Single quote string
 `,g:           Grave quote string
 t:             Markup tag<tag>
 ...:           Pressed character
@@ -54,10 +54,12 @@ define-command match-surround-add %{
       case "$kak_key" in
         "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
         "t") echo _match-surround-add-tag ;;
-        "b"|"("|")") echo "exec i(<esc>a)<esc>" ;;
-        "B"|"{"|"}") echo "exec i{<esc>a}<esc>" ;;
-        "r"|"["|"]") echo "exec i[<esc>a]<esc>" ;;
-        "a"|"<lt>"|"<gt>") echo "exec i<lt><esc>a<gt><esc>" ;;
+        "b"|"("|")") echo "exec i(<esc>a)<esc>H" ;;
+        "B"|"{"|"}") echo "exec i{<esc>a}<esc>H" ;;
+        "r"|"["|"]") echo "exec i[<esc>a]<esc>H" ;;
+        "a"|"<lt>"|"<gt>") echo "exec i<lt><esc>a<gt><esc>H" ;;
+        "q") echo "exec i<quote><esc>a<quote><esc>H" ;;
+        "Q") echo "exec i<dquote><esc>a<dquote><esc>H" ;;
         *) echo "exec i$kak_key<esc>a$kak_key<esc>" ;;
       esac
     }
@@ -92,14 +94,19 @@ define-command _match-surround-replace-tag -hidden %{
 }
 
 define-command _match-surround-replace -hidden %{
-  info -title "Surround replce char" "enter char to replace with"
+  info -title "Surround replce char" \
+"enter char to replace with
+ - <t> will replace selection with markup tag
+"
   on-key %{
     eval %sh{
       case "$kak_key" in
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
         "("|")") echo "exec -draft i<backspace>(<esc>a<del>)<esc>" ;;
         "{"|"}") echo "exec -draft i<backspace>{<esc>a<del>}<esc>" ;;
         "["|"]") echo "exec -draft i<backspace>[<esc>a<del>]<esc>" ;;
         "<lt>"|"<gt>") echo "exec -draft i<backspace><lt><esc>a<del><gt><esc>" ;;
+        "t") echo "exec i<backspace><esc>a<del><esc>:_match-surround-add-tag<ret>" ;;
         *) echo "exec -draft i<backspace>${kak_key}<esc>a<del>${kak_key}<esc>" ;;
       esac
     }
