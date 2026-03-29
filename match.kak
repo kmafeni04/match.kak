@@ -60,7 +60,7 @@ define-command match-surround-add %{
         "a"|"<lt>"|"<gt>") echo "exec i<lt><esc>a<gt><esc>H" ;;
         "q") echo "exec i<quote><esc>a<quote><esc>H" ;;
         "Q") echo "exec i<dquote><esc>a<dquote><esc>H" ;;
-        *) echo "exec i$kak_key<esc>a$kak_key<esc>" ;;
+        *) echo "exec i$kak_key<esc>a$kak_key<esc>H" ;;
       esac
     }
   }
@@ -73,7 +73,7 @@ define-command match-surround-delete %{
       case "$kak_key" in
         "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
         "t") echo "exec -draft ':_select-boundary-of-surrounding-tag<ret>m<a-d>'" ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q") echo "exec -draft <a-i>${kak_key}i<backspace><esc>a<del><esc>" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\") echo "exec -draft <a-i>${kak_key}i<backspace><esc>a<del><esc>" ;;
         *) echo "exec <a-i>c${kak_key},${kak_key}<ret>i<backspace><esc>a<del><esc>" ;;
       esac
     }
@@ -120,7 +120,9 @@ define-command match-surround-replace %{
       case "$kak_key" in
         "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
         "t") echo _match-surround-replace-tag ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W") echo "exec <a-i>${kak_key}<ret>:_match-surround-replace<ret>" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\")
+          echo "exec <a-i>${kak_key}<ret>:_match-surround-replace<ret>"
+        ;;
         *) echo "exec <a-i>c${kak_key},${kak_key}<ret>:_match-surround-replace<ret>" ;;
       esac
     }
@@ -144,7 +146,7 @@ define-command match-inside %{
       case "$kak_key" in
         "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
         "t") echo _match-inside-tag ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W") echo "exec <a-i>${kak_key}<ret>" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\") echo "exec <a-i>${kak_key}<ret>" ;;
         *) echo "exec <a-i>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
@@ -169,7 +171,7 @@ define-command match-around %{
       case "$kak_key" in
         "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
         "t") echo _match-around-tag ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W") echo "exec <a-a>${kak_key}<ret>" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\") echo "exec <a-a>${kak_key}<ret>" ;;
         *) echo "exec <a-a>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
@@ -191,6 +193,7 @@ define-command match-next %{
         "w") echo "exec /\w[\w-_]*<ret>" ;;
         "<a-w>") echo "exec /\S+<ret>" ;;
         "t") echo "exec 'lh/<lt>\w[\w-0-9]*[^/<gt>]*<gt><ret>l:_match-around-tag<ret>'" ;;
+        "\\"|"|") echo "exec /\\${kak_key}<ret><a-a>${kak_key}" ;;
         *) echo "exec /${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
@@ -212,6 +215,7 @@ define-command match-prev %{
         "w") echo "exec <a-/>\w[\w-_]*<ret>" ;;
         "<a-w>") echo "exec <a-/>\S+<ret>" ;;
         "t") echo "exec 'hl<a-/><lt>\w[\w-0-9]*[^/<gt>]*<gt><ret>l:_match-around-tag<ret>'" ;;
+        "\\"|"|") echo "exec <a-/>\\${kak_key}<ret><a-a>${kak_key}" ;;
         *) echo "exec <a-/>${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
