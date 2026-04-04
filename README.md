@@ -18,6 +18,6 @@ map global match a ':match-around<ret>' -docstring 'Match around object'
 map global match n ':match-next<ret>' -docstring 'Match next object'
 map global match p ':match-prev<ret>' -docstring 'Match previous object'
 map global match s ':match-surround-add<ret>' -docstring 'Surround selection with character'
-map global match d ':match-surround-delete<ret>' -docstring 'Delete selection''s surrounding character'
-map global match r ':match-surround-replace<ret>' -docstring 'Replace selection''s surrounding character'
+map global match d ':match-surround-delete<ret>' -docstring "Delete selection's surrounding character"
+map global match r ':match-surround-replace<ret>' -docstring "Replace selection's surrounding character"
 ```
