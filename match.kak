@@ -30,19 +30,7 @@ t:             Markup tag<tag>
 define-command _match-surround-add-tag -hidden %{
   prompt "Tag:" %{
     eval %sh{
-      escape(){
-        echo "$1"                                  \
-        | sed 's/</#:____lt____:#/g'               \
-        | sed 's/>/#:____gt____:#/g'               \
-        | sed -E 's/#:____([a-z]{2})____:#/<\1>/g' \
-        | sed 's/;/<semicolon>/g'                  \
-        | sed 's/$/<ret>/g;'                       \
-        | sed 's/ /<space>/g'                      \
-        | sed 's/\t/<tab>/g'                       \
-        | sed ':a;N;$!ba;s/\n//g'                  \
-        | sed 's/<ret>$//'
-      }
-      echo "exec -draft i<lt>$(escape "$kak_text")<gt><esc>a<lt>/${kak_text% *}<gt><esc>i<left><right><esc>"
+      echo "exec -draft i<lt>$(echo "$kak_text" | sed 's/ /<space>/g')<gt><esc>a<lt>/${kak_text%% *}<gt><esc>i<left><right><esc>"
     }
   }
 }
