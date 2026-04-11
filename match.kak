@@ -29,8 +29,8 @@ t:             Markup tag<tag>
 
 define-command _match-surround-add-tag -hidden %{
   prompt "Tag:" %{
-    eval %sh{
-      echo "exec -draft i<lt>$(echo "$kak_text" | sed 's/ /<space>/g')<gt><esc>a<lt>/${kak_text%% *}<gt><esc>i<left><right><esc>"
+    evaluate-commands %sh{
+      echo "execute-keys -draft i<lt>$(echo "$kak_text" | sed 's/ /<space>/g')<gt><esc>a<lt>/${kak_text%% *}<gt><esc>i<left><right><esc>"
     }
   }
 }
@@ -38,17 +38,18 @@ define-command _match-surround-add-tag -hidden %{
 define-command match-surround-add %{
   _match-surround-info "Surround add"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
         "t") echo _match-surround-add-tag ;;
-        "b"|"("|")") echo "exec i(<esc>a)<esc>H" ;;
-        "B"|"{"|"}") echo "exec i{<esc>a}<esc>H" ;;
-        "r"|"["|"]") echo "exec i[<esc>a]<esc>H" ;;
-        "a"|"<lt>"|"<gt>") echo "exec i<lt><esc>a<gt><esc>H" ;;
-        "q") echo "exec i<quote><esc>a<quote><esc>H" ;;
-        "Q") echo "exec i<dquote><esc>a<dquote><esc>H" ;;
-        *) echo "exec i$kak_key<esc>a$kak_key<esc>H" ;;
+        "b"|"("|")") echo "execute-keys i(<esc>a)<esc>H" ;;
+        "B"|"{"|"}") echo "execute-keys i{<esc>a}<esc>H" ;;
+        "r"|"["|"]") echo "execute-keys i[<esc>a]<esc>H" ;;
+        "a"|"<lt>"|"<gt>") echo "execute-keys i<lt><esc>a<gt><esc>H" ;;
+        "g") echo "execute-keys i\`<esc>a\`<esc>H" ;;
+        "q") echo "execute-keys i<quote><esc>a<quote><esc>H" ;;
+        "Q") echo "execute-keys i<dquote><esc>a<dquote><esc>H" ;;
+        *) echo "execute-keys i$kak_key<esc>a$kak_key<esc>H" ;;
       esac
     }
   }
@@ -57,12 +58,16 @@ define-command match-surround-add %{
 define-command match-surround-delete %{
   _match-surround-info "Surround delete"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
-        "t") echo "exec -draft ':_select-boundary-of-surrounding-tag<ret>m<a-d>'" ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\") echo "exec -draft <a-i>${kak_key}i<backspace><esc>a<del><esc>" ;;
-        *) echo "exec <a-i>c${kak_key},${kak_key}<ret>i<backspace><esc>a<del><esc>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
+        "t") echo "execute-keys -draft ':_select-boundary-of-surrounding-tag<ret>m<a-d>'" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\")
+          echo "execute-keys -draft <a-i>${kak_key}i<backspace><esc>a<del><esc>:nop<ret>"
+          ;;
+        *)
+          echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>i<backspace><esc>a<del><esc>:nop<ret>"
+          ;;
       esac
     }
   }
@@ -70,32 +75,32 @@ define-command match-surround-delete %{
 
 define-command _match-surround-replace-tag -hidden %{
   _select-boundary-of-surrounding-tag
-  exec m
+  execute-keys m
   prompt "Tag: " %{
-    eval %sh{
+    evaluate-commands %sh{
       tag="${kak_selections##*</}"
       tag="${tag%>}"
-      echo "exec s(?<lt>=<lt>)/?\w[\w-0-9]*<ret>"
-      echo "exec -draft <a-c>/$kak_text<esc><a-,>mi<right><del><esc>ma<right><esc>"
+      echo "execute-keys s(?<lt>=<lt>)/?\w[\w-0-9]*<ret>"
+      echo "execute-keys -draft <a-c>/$kak_text<esc><a-,>mi<right><del><esc>ma<right><esc>"
     }
   }
 }
 
 define-command _match-surround-replace -hidden %{
-  info -title "Surround replace char" \
-"enter char to replace with
- - <t> will replace selection with markup tag
-"
+  _match-surround-info "Surround replace with"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
-        "("|")") echo "exec -draft i<backspace>(<esc>a<del>)<esc>" ;;
-        "{"|"}") echo "exec -draft i<backspace>{<esc>a<del>}<esc>" ;;
-        "["|"]") echo "exec -draft i<backspace>[<esc>a<del>]<esc>" ;;
-        "<lt>"|"<gt>") echo "exec -draft i<backspace><lt><esc>a<del><gt><esc>" ;;
-        "t") echo "exec i<backspace><esc>a<del><esc>:_match-surround-add-tag<ret>" ;;
-        *) echo "exec -draft i<backspace>${kak_key}<esc>a<del>${kak_key}<esc>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
+        "b"|"("|")") echo "execute-keys -draft i<backspace>(<esc>a<del>)<esc>" ;;
+        "B"|"{"|"}") echo "execute-keys -draft i<backspace>{<esc>a<del>}<esc>" ;;
+        "r"|"["|"]") echo "execute-keys -draft i<backspace>[<esc>a<del>]<esc>" ;;
+        "a"|"<lt>"|"<gt>") echo "execute-keys -draft i<backspace><lt><esc>a<del><gt><esc>" ;;
+        "g") echo "execute-keys -draft i<backspace>\`<esc>a<del>\`<esc>" ;;
+        "q") echo "execute-keys -draft i<backspace><quote><esc>a<del><quote><esc>" ;;
+        "Q") echo "execute-keys -draft i<backspace><dquote><esc>a<del><dquote><esc>" ;;
+        "t") echo "execute-keys -draft i<backspace><esc>a<del><esc>:_match-surround-add-tag<ret>" ;;
+        *) echo "execute-keys -draft i<backspace>${kak_key}<esc>a<del>${kak_key}<esc>" ;;
       esac
     }
   }
@@ -104,14 +109,14 @@ define-command _match-surround-replace -hidden %{
 define-command match-surround-replace %{
   _match-surround-info "Surround replace"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
         "t") echo _match-surround-replace-tag ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\")
-          echo "exec <a-i>${kak_key}<ret>:_match-surround-replace<ret>"
-        ;;
-        *) echo "exec <a-i>c${kak_key},${kak_key}<ret>:_match-surround-replace<ret>" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\")
+          echo "execute-keys <a-i>${kak_key}<ret>:_match-surround-replace<ret>"
+          ;;
+        *) echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>:_match-surround-replace<ret>" ;;
       esac
     }
   }
@@ -119,23 +124,25 @@ define-command match-surround-replace %{
 
 define-command _match-inside-tag -hidden %{
   _select-boundary-of-surrounding-tag
-  exec m
-  eval %sh{
+  execute-keys m
+  evaluate-commands %sh{
     tag="${kak_selections##*</}"
     tag="${tag%>}"
-    echo "exec '<a-,>a<right><esc><a-i>c<lt>$tag[^<gt>]*<gt>,<lt>/$tag[^<gt>]*<gt><ret>'"
+    echo "execute-keys '<a-,>a<right><esc><a-i>c<lt>$tag[^<gt>]*<gt>,<lt>/$tag[^<gt>]*<gt><ret>'"
   }
 }
 
 define-command match-inside %{
   _match-info "Match inside"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
         "t") echo _match-inside-tag ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\") echo "exec <a-i>${kak_key}<ret>" ;;
-        *) echo "exec <a-i>c${kak_key},${kak_key}<ret>" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\")
+          echo "execute-keys <a-i>${kak_key}<ret>"
+          ;;
+        *) echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
   }
@@ -143,24 +150,26 @@ define-command match-inside %{
 
 define-command _match-around-tag -hidden %{
   _select-boundary-of-surrounding-tag
-  exec m
-  eval %sh{
+  execute-keys m
+  evaluate-commands %sh{
     tag="${kak_selections##*</}"
     tag="${tag%>}"
-    echo "exec '<a-,>i<left><right><esc>'"
-    echo "exec '?<lt>/$tag<gt><ret><a-;>'"
+    echo "execute-keys '<a-,>i<left><right><esc>'"
+    echo "execute-keys '?<lt>/$tag<gt><ret><a-;>'"
   }
 }
 
 define-command match-around %{
   _match-info "Match around"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
         "t") echo _match-around-tag ;;
-        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\") echo "exec <a-a>${kak_key}<ret>" ;;
-        *) echo "exec <a-a>c${kak_key},${kak_key}<ret>" ;;
+        "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"W"|"|"|"\\")
+          echo "execute-keys <a-a>${kak_key}<ret>"
+          ;;
+        *) echo "execute-keys <a-a>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
   }
@@ -169,20 +178,21 @@ define-command match-around %{
 define-command match-next %{
   _match-info "Match next"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
-        "b"|"("|")") echo "exec /\(<ret><a-a>)<ret>" ;;
-        "B"|"{"|"}") echo "exec /\{<ret><a-a>}<ret>" ;;
-        "r"|"["|"]") echo "exec /\[<ret><a-a>]<ret>" ;;
-        "a"|"<lt>"|"<gt>") echo "exec /<lt><ret><a-a><lt><ret>" ;;
-        "q") echo "exec /<quote><ret><a-a><quote><ret>" ;;
-        "Q") echo 'exec /<dquote><ret><a-a><dquote><ret>' ;;
-        "w") echo "exec /\w[\w-_]*<ret>" ;;
-        "<a-w>") echo "exec /\S+<ret>" ;;
-        "t") echo "exec 'lh/<lt>\w[\w-0-9]*[^/<gt>]*<gt><ret>l:_match-around-tag<ret>'" ;;
-        "\\"|"|") echo "exec /\\${kak_key}<ret><a-a>${kak_key}" ;;
-        *) echo "exec /${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
+        "b"|"("|")") echo "execute-keys /\(<ret><a-a>)<ret>" ;;
+        "B"|"{"|"}") echo "execute-keys /\{<ret><a-a>}<ret>" ;;
+        "r"|"["|"]") echo "execute-keys /\[<ret><a-a>]<ret>" ;;
+        "a"|"<lt>"|"<gt>") echo "execute-keys /<lt><ret><a-a><lt><ret>" ;;
+        "g") echo "execute-keys /\`<ret><a-a>\`<ret>" ;;
+        "q") echo "execute-keys /<quote><ret><a-a><quote><ret>" ;;
+        "Q") echo 'execute-keys /<dquote><ret><a-a><dquote><ret>' ;;
+        "w") echo "execute-keys /\w[\w-_]*<ret>" ;;
+        "<a-w>") echo "execute-keys /\S+<ret>" ;;
+        "t") echo "execute-keys 'lh/<lt>\w[\w-0-9]*[^/<gt>]*<gt><ret>l:_match-around-tag<ret>'" ;;
+        "\\"|"|") echo "execute-keys /\\${kak_key}<ret><a-a>${kak_key}" ;;
+        *) echo "execute-keys /${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
   }
@@ -191,20 +201,21 @@ define-command match-next %{
 define-command match-prev %{
   _match-info "Match previous"
   on-key %{
-    eval %sh{
+    evaluate-commands %sh{
       case "$kak_key" in
-        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "exec :nop<ret>" ;;
-        "b"|"("|")") echo "exec <a-/>\(<ret><a-a>)<ret>" ;;
-        "B"|"{"|"}") echo "exec <a-/>\{<ret><a-a>}<ret>" ;;
-        "r"|"["|"]") echo "exec <a-/>\[<ret><a-a>]<ret>" ;;
-        "a"|"<lt>"|"<gt>") echo "exec <a-/><lt><ret><a-a><lt><ret>" ;;
-        "q") echo "exec <a-/><quote><ret><a-a><quote><ret>" ;;
-        "Q") echo 'exec <a-/><dquote><ret><a-a><dquote><ret>' ;;
-        "w") echo "exec <a-/>\w[\w-_]*<ret>" ;;
-        "<a-w>") echo "exec <a-/>\S+<ret>" ;;
-        "t") echo "exec 'hl<a-/><lt>\w[\w-0-9]*[^/<gt>]*<gt><ret>l:_match-around-tag<ret>'" ;;
-        "\\"|"|") echo "exec <a-/>\\${kak_key}<ret><a-a>${kak_key}" ;;
-        *) echo "exec <a-/>${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
+        "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
+        "b"|"("|")") echo "execute-keys <a-/>\(<ret><a-a>)<ret>" ;;
+        "B"|"{"|"}") echo "execute-keys <a-/>\{<ret><a-a>}<ret>" ;;
+        "r"|"["|"]") echo "execute-keys <a-/>\[<ret><a-a>]<ret>" ;;
+        "a"|"<lt>"|"<gt>") echo "execute-keys <a-/><lt><ret><a-a><lt><ret>" ;;
+        "g") echo "execute-keys <a-/>\`<ret><a-a>\`<ret>" ;;
+        "q") echo "execute-keys <a-/><quote><ret><a-a><quote><ret>" ;;
+        "Q") echo 'execute-keys <a-/><dquote><ret><a-a><dquote><ret>' ;;
+        "w") echo "execute-keys <a-/>\w[\w-_]*<ret>" ;;
+        "<a-w>") echo "execute-keys <a-/>\S+<ret>" ;;
+        "t") echo "execute-keys 'hl<a-/><lt>\w[\w-0-9]*[^/<gt>]*<gt><ret>l:_match-around-tag<ret>'" ;;
+        "\\"|"|") echo "execute-keys <a-/>\\${kak_key}<ret><a-a>${kak_key}" ;;
+        *) echo "execute-keys <a-/>${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
       esac
     }
   }
@@ -224,7 +235,7 @@ define-command -hidden _select-boundary-of-surrounding-tag %{
     }
   }
   execute-keys 'Ge<a-;>'
-  eval %sh{
+  evaluate-commands %sh{
     tag_list=`echo "$kak_selection" | grep -P -o '(?<=<)[^>]+(?=>)' | cut -d ' ' -f 1`
     open=
     open_stack=
@@ -248,7 +259,7 @@ define-command -hidden _select-boundary-of-surrounding-tag %{
         fi
       fi
     done
-    echo "try %{ exec '<a-a>c<lt>$result\s?[^>]*>,<lt>/$result><ret>' } catch %{ exec 'i<left><right><esc>'; fail 'No tag matched' }"
+    echo "try %{ execute-keys '<a-a>c<lt>$result\s?[^>]*>,<lt>/$result><ret>' } catch %{ execute-keys 'i<left><right><esc>'; fail 'No tag matched' }"
   }
   execute-keys '<a-S>'
 }
