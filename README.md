@@ -1,5 +1,5 @@
 # match.kak
-Helix like match commnands plus hacky html tag support
+Helix like match commnands plus hacky XML tag support
 
 TODO: Video Showcase
 
@@ -8,7 +8,7 @@ Copy [match.kak](./match.kak) into your autoload directory
 
 ## Usage
 
-Suggested keymap
+Suggested keymap:
 ```kak
 declare-user-mode match
 map global normal m ':enter-user-mode match<ret>'
