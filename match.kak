@@ -46,11 +46,11 @@ t:             XML tag
         for id in "$@"; do
           if [ "$id" = "$kak_history_id" ]; then
             printf 'execute-keys "<dquote>pz"\n'
+            printf 'echo\n'
             break
           fi
         done
       }
-      echo
     }
   }
 
@@ -70,9 +70,9 @@ t:             XML tag
       evaluate-commands %sh{
         if [ -n "$kak_main_reg_p" ]; then
           printf 'execute-keys "<dquote>pz"\n'
+          printf 'echo\n'
         fi
       }
-      echo
     }
   }
 
@@ -123,7 +123,7 @@ t:             XML tag
         case "$kak_key" in
           "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
           "t") echo "evaluate-commands -draft _match-surround-delete-tag" ;;
-          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\"|"*")
+          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
             echo "execute-keys -draft <a-i>${kak_key}i<backspace><esc>a<del><esc>:nop<ret>"
             ;;
           *)
@@ -179,7 +179,7 @@ t:             XML tag
         case "$kak_key" in
           "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
           "t") echo _match-surround-replace-tag ;;
-          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*")
+          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
             echo "execute-keys <a-i>${kak_key}<ret>:_match-surround-replace<ret>"
             ;;
           *) echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>:_match-surround-replace<ret>" ;;
@@ -199,7 +199,7 @@ t:             XML tag
         case "$kak_key" in
           "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
           "t") echo _match-inside-tag ;;
-          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p")
+          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
             echo "execute-keys <a-i>${kak_key}<ret>"
             ;;
           *) echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>" ;;
@@ -219,7 +219,7 @@ t:             XML tag
         case "$kak_key" in
           "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
           "t") echo _match-around-tag ;;
-          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p")
+          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
             echo "execute-keys <a-a>${kak_key}<ret>"
             ;;
           *) echo "execute-keys <a-a>c${kak_key},${kak_key}<ret>" ;;
@@ -246,7 +246,7 @@ t:             XML tag
           "t") echo "execute-keys '<a-:><a-semicolon><semicolon>/<lt>\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>l:_match-around-tag<ret>'" ;;
           "i") echo "execute-keys /^\h+<ret><a-a>i<a-:><a-semicolon><ret>";;
           "p") echo "execute-keys /^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
-          "\\"|"|"|"*") echo "execute-keys /\\${kak_key}<ret><a-a>${kak_key}" ;;
+          '.'|'*'|','|'?'|'^'|'|'|"<plus>"|'$'|'\\') echo "execute-keys /\\${kak_key}<ret><a-a>${kak_key}" ;;
           *) echo "execute-keys /${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
         esac
       }
@@ -271,7 +271,7 @@ t:             XML tag
           "t") "execute-keys '<a-/><lt>/?\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>m:_match-around-tag<ret>'" ;;
           "i") echo "execute-keys <a-/>^\h+<ret><a-a>i<a-:><ret>";;
           "p") echo "execute-keys <a-/>^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
-          "\\"|"|"|"*") echo "execute-keys <a-/>\\${kak_key}<ret><a-a>${kak_key}" ;;
+           '.'|'*'|','|'?'|'^'|'|'|"<plus>"|'$'|'\\') echo "execute-keys <a-/>\\${kak_key}<ret><a-a>${kak_key}" ;;
           *) echo "execute-keys <a-/>${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
         esac
       }
