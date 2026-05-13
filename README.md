@@ -20,4 +20,6 @@ map global match p ':match-prev<ret>' -docstring 'Match previous object'
 map global match s ':match-surround-add<ret>' -docstring 'Surround selection with character'
 map global match d ':match-surround-delete<ret>' -docstring "Delete selection's surrounding character"
 map global match r ':match-surround-replace<ret>' -docstring "Replace selection's surrounding character"
+map global normal u ':match-surround-undo<ret>'
+map global normal U ':match-surround-redo<ret>'
 ```
