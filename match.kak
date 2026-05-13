@@ -1,4 +1,7 @@
 provide-module match %{
+  declare-option -hidden str _match_xml_object "c<lt>([\w.]+)\b[^>]*?(?<lt>!/)>,<lt>/([\w.]+)\b[^>]*?(?<lt>!/)><ret>"
+  declare-option -hidden str-list _match_saved_surround_history_ids
+
   define-command -hidden _match-info -params 1 %{
     info -title "%arg{1}" \
 "b,(,):         Parentheses block
@@ -30,7 +33,48 @@ t:             XML tag
 "
   }
 
-  declare-option -hidden str _match_xml_object "c<lt>([\w.]+)\b[^>]*?(?<lt>!/)>,<lt>/([\w.]+)\b[^>]*?(?<lt>!/)><ret>"
+  define-command -hidden _match-surround-save-undo %{
+    set-option -add window _match_saved_surround_history_ids %val{history_id}
+  }
+
+  define-command match-surround-undo %{
+    evaluate-commands -save-regs p %{
+      execute-keys '"pZ'
+      try %{ execute-keys u } catch %{ fail 'nothing left to undo' }
+      evaluate-commands %sh{
+        eval "set -- $kak_quoted_opt__match_saved_surround_history_ids"
+        for id in "$@"; do
+          if [ "$id" = "$kak_history_id" ]; then
+            printf 'execute-keys "<dquote>pz"\n'
+            break
+          fi
+        done
+      }
+      echo
+    }
+  }
+
+  define-command match-surround-redo %{
+    evaluate-commands -save-regs p %{
+      set-register p  ''
+      evaluate-commands %sh{
+        eval "set -- $kak_quoted_opt__match_saved_surround_history_ids"
+        for id in "$@"; do
+          if [ "$id" = "$kak_history_id" ]; then
+            printf 'execute-keys "<dquote>pZ"\n'
+            break
+          fi
+        done
+      }
+      try %{ execute-keys U } catch %{ fail 'nothing left to redo' }
+      evaluate-commands %sh{
+        if [ -n "$kak_main_reg_p" ]; then
+          printf 'execute-keys "<dquote>pz"\n'
+        fi
+      }
+      echo
+    }
+  }
 
   define-command _match-surround-add-tag -hidden %{
     prompt "Tag:" %{
@@ -42,6 +86,7 @@ t:             XML tag
 
   define-command match-surround-add %{
     _match-surround-info "Surround add"
+    _match-surround-save-undo
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
@@ -72,6 +117,7 @@ t:             XML tag
 
   define-command match-surround-delete %{
     _match-surround-info "Surround delete"
+    _match-surround-save-undo
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
@@ -105,6 +151,7 @@ t:             XML tag
 
   define-command _match-surround-replace -hidden %{
     _match-surround-info "Surround replace with"
+    _match-surround-save-undo
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
@@ -126,6 +173,7 @@ t:             XML tag
 
   define-command match-surround-replace %{
     _match-surround-info "Surround replace"
+    _match-surround-save-undo
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
