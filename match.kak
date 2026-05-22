@@ -1,6 +1,6 @@
 provide-module match %{
   declare-option -hidden str _match_xml_object "c<lt>([\w.]+)\b[^>]*?(?<lt>!/)>,<lt>/([\w.]+)\b[^>]*?(?<lt>!/)><ret>"
-  declare-option -hidden str-list _match_saved_surround_history_ids
+  declare-option -hidden str-list _match_saved_surround_history
 
   define-command -hidden _match-info -params 1 %{
     info -title "%arg{1}" \
@@ -34,18 +34,20 @@ t:             XML tag
   }
 
   define-command -hidden _match-surround-save-undo %{
-    set-option -add window _match_saved_surround_history_ids %val{history_id}
+    set-option -add window _match_saved_surround_history "%val{history_id}|%val{selections_desc}"
   }
 
   define-command match-surround-undo %{
-    evaluate-commands -save-regs p %{
-      execute-keys '"pZ'
+    evaluate-commands %{
       try %{ execute-keys u } catch %{ fail 'nothing left to undo' }
       evaluate-commands %sh{
-        eval "set -- $kak_quoted_opt__match_saved_surround_history_ids"
-        for id in "$@"; do
+        eval "set -- $kak_quoted_opt__match_saved_surround_history"
+
+        for his in "$@"; do
+          id="$(printf '%s' "$his" | cut -d '|' -f1 )"
+          sel="$(printf '%s' "$his" | cut -d '|' -f2 )"
           if [ "$id" = "$kak_history_id" ]; then
-            printf 'execute-keys "<dquote>pz"\n'
+            printf '%s\n' "select $sel"
             printf 'echo\n'
             break
           fi
@@ -54,22 +56,25 @@ t:             XML tag
     }
   }
 
-  define-command match-surround-redo %{
-    evaluate-commands -save-regs p %{
-      set-register p  ''
+  define-command -override match-surround-redo %{
+    evaluate-commands -save-regs 's' %{
+      set-register s  ''
       evaluate-commands %sh{
-        eval "set -- $kak_quoted_opt__match_saved_surround_history_ids"
-        for id in "$@"; do
+        eval "set -- $kak_quoted_opt__match_saved_surround_history"
+
+        for his in "$@"; do
+          id="$(printf '%s' "$his" | cut -d '|' -f1)"
+          sel="$(printf '%s' "$his" | cut -d '|' -f2)"
           if [ "$id" = "$kak_history_id" ]; then
-            printf 'execute-keys "<dquote>pZ"\n'
+            printf "%s\n" "set-register s '$sel'"
             break
           fi
         done
       }
       try %{ execute-keys U } catch %{ fail 'nothing left to redo' }
       evaluate-commands %sh{
-        if [ -n "$kak_main_reg_p" ]; then
-          printf 'execute-keys "<dquote>pz"\n'
+        if [ -n "$kak_main_reg_s" ]; then
+          printf "%s\n" "select $kak_main_reg_s"
           printf 'echo\n'
         fi
       }
