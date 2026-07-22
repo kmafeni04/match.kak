@@ -150,6 +150,8 @@ t:             XML tag
         tag="${tag%>}"
         echo "execute-keys s<lt>/$tag<ret><a-c><lt>/$kak_text<esc>"
         echo "execute-keys <dquote>tz<a-:><a-semicolon>ms<lt>$tag<ret><a-c><lt>$kak_text<esc>"
+        echo "execute-keys F<gt>l"
+        echo "_match-around-tag"
       }
     }
   }
