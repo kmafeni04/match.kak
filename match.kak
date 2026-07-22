@@ -146,9 +146,9 @@ t:             XML tag
     prompt "Tag: " %{
       evaluate-commands -save-regs 't' %sh{
         echo "execute-keys '<dquote>tZ'"
-        echo "execute-keys m"
         tag="${kak_selections##*</}"
         tag="${tag%>}"
+        notify-send "$tag"
         echo "execute-keys s<lt>/$tag<ret><a-c><lt>/$kak_text<esc>"
         echo "execute-keys <dquote>tz<a-:><a-semicolon>ms<lt>$tag<ret><a-c><lt>$kak_text<esc>"
       }
