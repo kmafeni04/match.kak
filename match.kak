@@ -85,7 +85,9 @@ t:             XML tag
   define-command _match-surround-add-tag -hidden %{
     prompt "Tag:" %{
       evaluate-commands %sh{
-        echo "execute-keys -draft i<lt>$(echo "$kak_text" | sed 's/ /<space>/g')<gt><esc>a<lt>/${kak_text%% *}<gt><esc>i<left><right><esc>"
+        printf '%s\n' "execute-keys -draft i<lt>$( \
+          printf '%s\n' "$kak_text" | sed 's/ /<space>/g' \
+        )<gt><esc>a<lt>/${kak_text%% *}<gt><esc>i<left><right><esc>"
       }
     }
   }
@@ -96,16 +98,16 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "t") echo _match-surround-add-tag ;;
-          "b"|"("|")") echo "execute-keys i(<esc>a)<esc>H" ;;
-          "B"|"{"|"}") echo "execute-keys i{<esc>a}<esc>H" ;;
-          "r"|"["|"]") echo "execute-keys i[<esc>a]<esc>H" ;;
-          "a"|"<lt>"|"<gt>") echo "execute-keys i<lt><esc>a<gt><esc>H" ;;
-          "g") echo "execute-keys i\`<esc>a\`<esc>H" ;;
-          "q") echo "execute-keys i<quote><esc>a<quote><esc>H" ;;
-          "Q") echo "execute-keys i<dquote><esc>a<dquote><esc>H" ;;
-          *) echo "execute-keys i$kak_key<esc>a$kak_key<esc>H" ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "t") printf '%s\n' "_match-surround-add-tag" ;;
+          "b"|"("|")") printf '%s\n' "execute-keys i(<esc>a)<esc>H" ;;
+          "B"|"{"|"}") printf '%s\n' "execute-keys i{<esc>a}<esc>H" ;;
+          "r"|"["|"]") printf '%s\n' "execute-keys i[<esc>a]<esc>H" ;;
+          "a"|"<lt>"|"<gt>") printf '%s\n' "execute-keys i<lt><esc>a<gt><esc>H" ;;
+          "g") printf '%s\n' "execute-keys i\`<esc>a\`<esc>H" ;;
+          "q") printf '%s\n' "execute-keys i<quote><esc>a<quote><esc>H" ;;
+          "Q") printf '%s\n' "execute-keys i<dquote><esc>a<dquote><esc>H" ;;
+          *) printf '%s\n' "execute-keys i$kak_key<esc>a$kak_key<esc>H" ;;
         esac
       }
     }
@@ -117,7 +119,7 @@ t:             XML tag
     evaluate-commands %sh{
       tag="${kak_selections##*</}"
       tag="${tag%>}"
-      echo "execute-keys s<lt>/$tag<ret>m<a-d><a-?><lt>${tag}<ret>m<a-d>"
+      printf '%s\n' "execute-keys s<lt>/$tag<ret>m<a-d><a-?><lt>${tag}<ret>m<a-d>"
     }
   }
 
@@ -127,13 +129,13 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "t") echo "evaluate-commands -draft _match-surround-delete-tag" ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "t") printf '%s\n' "evaluate-commands -draft _match-surround-delete-tag" ;;
           "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
-            echo "execute-keys -draft <a-i>${kak_key}i<backspace><esc>a<del><esc>:nop<ret>"
+            printf '%s\n' "execute-keys -draft <a-i>${kak_key}i<backspace><esc>a<del><esc>:nop<ret>"
             ;;
           *)
-            echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>i<backspace><esc>a<del><esc>:nop<ret>"
+            printf '%s\n' "execute-keys <a-i>c${kak_key},${kak_key}<ret>i<backspace><esc>a<del><esc>:nop<ret>"
             ;;
         esac
       }
@@ -145,13 +147,13 @@ t:             XML tag
     _match-around-tag
     prompt "Tag: " %{
       evaluate-commands -save-regs 't' %sh{
-        echo "execute-keys '<dquote>tZ'"
+        printf '%s\n' "execute-keys '<dquote>tZ'"
         tag="${kak_selections##*</}"
         tag="${tag%>}"
-        echo "execute-keys s<lt>/$tag<ret><a-c><lt>/$kak_text<esc>"
-        echo "execute-keys <dquote>tz<a-:><a-semicolon>ms<lt>$tag<ret><a-c><lt>$kak_text<esc>"
-        echo "execute-keys F<gt>l"
-        echo "_match-around-tag"
+        printf '%s\n' "execute-keys s<lt>/$tag<ret><a-c><lt>/$kak_text<esc>"
+        printf '%s\n' "execute-keys <dquote>tz<a-:><a-semicolon>ms<lt>$tag<ret><a-c><lt>$kak_text<esc>"
+        printf '%s\n' "execute-keys F<gt>l"
+        printf '%s\n' "_match-around-tag"
       }
     }
   }
@@ -162,16 +164,16 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "b"|"("|")") echo "execute-keys -draft i<backspace>(<esc>a<del>)<esc>" ;;
-          "B"|"{"|"}") echo "execute-keys -draft i<backspace>{<esc>a<del>}<esc>" ;;
-          "r"|"["|"]") echo "execute-keys -draft i<backspace>[<esc>a<del>]<esc>" ;;
-          "a"|"<lt>"|"<gt>") echo "execute-keys -draft i<backspace><lt><esc>a<del><gt><esc>" ;;
-          "g") echo "execute-keys -draft i<backspace>\`<esc>a<del>\`<esc>" ;;
-          "q") echo "execute-keys -draft i<backspace><quote><esc>a<del><quote><esc>" ;;
-          "Q") echo "execute-keys -draft i<backspace><dquote><esc>a<del><dquote><esc>" ;;
-          "t") echo "execute-keys -draft i<backspace><esc>a<del><esc>:_match-surround-add-tag<ret>" ;;
-          *) echo "execute-keys -draft i<backspace>${kak_key}<esc>a<del>${kak_key}<esc>" ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "b"|"("|")") printf '%s\n' "execute-keys -draft i<backspace>(<esc>a<del>)<esc>" ;;
+          "B"|"{"|"}") printf '%s\n' "execute-keys -draft i<backspace>{<esc>a<del>}<esc>" ;;
+          "r"|"["|"]") printf '%s\n' "execute-keys -draft i<backspace>[<esc>a<del>]<esc>" ;;
+          "a"|"<lt>"|"<gt>") printf '%s\n' "execute-keys -draft i<backspace><lt><esc>a<del><gt><esc>" ;;
+          "g") printf '%s\n' "execute-keys -draft i<backspace>\`<esc>a<del>\`<esc>" ;;
+          "q") printf '%s\n' "execute-keys -draft i<backspace><quote><esc>a<del><quote><esc>" ;;
+          "Q") printf '%s\n' "execute-keys -draft i<backspace><dquote><esc>a<del><dquote><esc>" ;;
+          "t") printf '%s\n' "execute-keys -draft i<backspace><esc>a<del><esc>:_match-surround-add-tag<ret>" ;;
+          *) printf '%s\n' "execute-keys -draft i<backspace>${kak_key}<esc>a<del>${kak_key}<esc>" ;;
         esac
       }
       execute-keys :nop<ret>
@@ -184,12 +186,12 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "t") echo _match-surround-replace-tag ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "t") printf '%s\n' _match-surround-replace-tag ;;
           "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
-            echo "execute-keys <a-i>${kak_key}<ret>:_match-surround-replace<ret>"
+            printf '%s\n' "execute-keys <a-i>${kak_key}<ret>:_match-surround-replace<ret>"
             ;;
-          *) echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>:_match-surround-replace<ret>" ;;
+          *) printf '%s\n' "execute-keys <a-i>c${kak_key},${kak_key}<ret>:_match-surround-replace<ret>" ;;
         esac
       }
     }
@@ -204,12 +206,12 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "t") echo _match-inside-tag ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "t") printf '%s\n' "_match-inside-tag" ;;
           "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
-            echo "execute-keys <a-i>${kak_key}<ret>"
+            printf '%s\n' "execute-keys <a-i>${kak_key}<ret>"
             ;;
-          *) echo "execute-keys <a-i>c${kak_key},${kak_key}<ret>" ;;
+          *) printf '%s\n' "execute-keys <a-i>c${kak_key},${kak_key}<ret>" ;;
         esac
       }
     }
@@ -224,12 +226,12 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "t") echo _match-around-tag ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "t") printf '%s\n' _match-around-tag ;;
           "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
-            echo "execute-keys <a-a>${kak_key}<ret>"
+            printf '%s\n' "execute-keys <a-a>${kak_key}<ret>"
             ;;
-          *) echo "execute-keys <a-a>c${kak_key},${kak_key}<ret>" ;;
+          *) printf '%s\n' "execute-keys <a-a>c${kak_key},${kak_key}<ret>" ;;
         esac
       }
     }
@@ -240,21 +242,21 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "b"|"("|")") echo "execute-keys /\(<ret><a-a>)<ret>" ;;
-          "B"|"{"|"}") echo "execute-keys /\{<ret><a-a>}<ret>" ;;
-          "r"|"["|"]") echo "execute-keys /\[<ret><a-a>]<ret>" ;;
-          "a"|"<lt>"|"<gt>") echo "execute-keys /<lt><ret><a-a><lt><ret>" ;;
-          "g") echo "execute-keys /\`<ret><a-a>\`<ret>" ;;
-          "q") echo "execute-keys /<quote><ret><a-a><quote><ret>" ;;
-          "Q") echo 'execute-keys /<dquote><ret><a-a><dquote><ret>' ;;
-          "w") echo "execute-keys /\w+<ret><a-i>w" ;;
-          "<a-w>") echo "execute-keys /\S+<ret><a-i><a-w>" ;;
-          "t") echo "execute-keys '<a-:><a-semicolon><semicolon>/<lt>\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>l:_match-around-tag<ret>'" ;;
-          "i") echo "execute-keys /^\h+<ret><a-a>i<a-:><a-semicolon><ret>";;
-          "p") echo "execute-keys /^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
-          '.'|'*'|','|'?'|'^'|'|'|"<plus>"|'$'|'\\') echo "execute-keys /\\${kak_key}<ret><a-a>${kak_key}" ;;
-          *) echo "execute-keys /${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "b"|"("|")") printf '%s\n' "execute-keys /\(<ret><a-a>)<ret>" ;;
+          "B"|"{"|"}") printf '%s\n' "execute-keys /\{<ret><a-a>}<ret>" ;;
+          "r"|"["|"]") printf '%s\n' "execute-keys /\[<ret><a-a>]<ret>" ;;
+          "a"|"<lt>"|"<gt>") printf '%s\n' "execute-keys /<lt><ret><a-a><lt><ret>" ;;
+          "g") printf '%s\n' "execute-keys /\`<ret><a-a>\`<ret>" ;;
+          "q") printf '%s\n' "execute-keys /<quote><ret><a-a><quote><ret>" ;;
+          "Q") printf '%s\n' 'execute-keys /<dquote><ret><a-a><dquote><ret>' ;;
+          "w") printf '%s\n' "execute-keys /\w+<ret><a-i>w" ;;
+          "<a-w>") printf '%s\n' "execute-keys /\S+<ret><a-i><a-w>" ;;
+          "t") printf '%s\n' "execute-keys '<a-:><a-semicolon><semicolon>/<lt>\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>l:_match-around-tag<ret>'" ;;
+          "i") printf '%s\n' "execute-keys /^\h+<ret><a-a>i<a-:><a-semicolon><ret>";;
+          "p") printf '%s\n' "execute-keys /^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
+          '.'|'*'|','|'?'|'^'|'|'|"<plus>"|'$'|'\\') printf '%s\n' "execute-keys /\\${kak_key}<ret><a-a>${kak_key}" ;;
+          *) printf '%s\n' "execute-keys /${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
         esac
       }
     }
@@ -265,21 +267,21 @@ t:             XML tag
     on-key %{
       evaluate-commands %sh{
         case "$kak_key" in
-          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") echo "execute-keys :nop<ret>" ;;
-          "b"|"("|")") echo "execute-keys <a-/>\(<ret><a-a>)<ret>" ;;
-          "B"|"{"|"}") echo "execute-keys <a-/>\{<ret><a-a>}<ret>" ;;
-          "r"|"["|"]") echo "execute-keys <a-/>\[<ret><a-a>]<ret>" ;;
-          "a"|"<lt>"|"<gt>") echo "execute-keys <a-/><lt><ret><a-a><lt><ret>" ;;
-          "g") echo "execute-keys <a-/>\`<ret><a-a>\`<ret>" ;;
-          "q") echo "execute-keys <a-/><quote><ret><a-a><quote><ret>" ;;
-          "Q") echo 'execute-keys <a-/><dquote><ret><a-a><dquote><ret>' ;;
-          "w") echo "execute-keys <a-/>\w+<ret><a-i>w" ;;
-          "<a-w>") echo "execute-keys <a-/>\S+<ret><a-i><a-w>" ;;
-          "t") "execute-keys '<a-/><lt>/?\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>m:_match-around-tag<ret>'" ;;
-          "i") echo "execute-keys <a-/>^\h+<ret><a-a>i<a-:><ret>";;
-          "p") echo "execute-keys <a-/>^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
-           '.'|'*'|','|'?'|'^'|'|'|"<plus>"|'$'|'\\') echo "execute-keys <a-/>\\${kak_key}<ret><a-a>${kak_key}" ;;
-          *) echo "execute-keys <a-/>${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
+          "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
+          "b"|"("|")") printf '%s\n' "execute-keys <a-/>\(<ret><a-a>)<ret>" ;;
+          "B"|"{"|"}") printf '%s\n' "execute-keys <a-/>\{<ret><a-a>}<ret>" ;;
+          "r"|"["|"]") printf '%s\n' "execute-keys <a-/>\[<ret><a-a>]<ret>" ;;
+          "a"|"<lt>"|"<gt>") printf '%s\n' "execute-keys <a-/><lt><ret><a-a><lt><ret>" ;;
+          "g") printf '%s\n' "execute-keys <a-/>\`<ret><a-a>\`<ret>" ;;
+          "q") printf '%s\n' "execute-keys <a-/><quote><ret><a-a><quote><ret>" ;;
+          "Q") printf '%s\n' 'execute-keys <a-/><dquote><ret><a-a><dquote><ret>' ;;
+          "w") printf '%s\n' "execute-keys <a-/>\w+<ret><a-i>w" ;;
+          "<a-w>") printf '%s\n' "execute-keys <a-/>\S+<ret><a-i><a-w>" ;;
+          "t") printf '%s\n' "execute-keys '<a-/><lt>/?\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>m:_match-around-tag<ret>'" ;;
+          "i") printf '%s\n' "execute-keys <a-/>^\h+<ret><a-a>i<a-:><ret>";;
+          "p") printf '%s\n' "execute-keys <a-/>^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
+           '.'|'*'|','|'?'|'^'|'|'|"<plus>"|'$'|'\\') printf '%s\n' "execute-keys <a-/>\\${kak_key}<ret><a-a>${kak_key}" ;;
+          *) printf '%s\n' "execute-keys <a-/>${kak_key}<ret><a-a>c${kak_key},${kak_key}<ret>" ;;
         esac
       }
     }
