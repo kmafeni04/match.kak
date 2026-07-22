@@ -75,6 +75,7 @@ t:             XML tag
       evaluate-commands %sh{
         if [ -n "$kak_main_reg_s" ]; then
           printf "%s\n" "select $kak_main_reg_s"
+          printf "%s\n" "execute-keys '<a-semicolon>L<a-semicolon>L'"
           printf 'echo\n'
         fi
       }
