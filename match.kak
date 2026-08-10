@@ -146,14 +146,15 @@ t:             XML tag
   define-command _match-surround-replace-tag -hidden %{
     _match-around-tag
     prompt "Tag: " %{
-      evaluate-commands -save-regs 't' %sh{
-        printf '%s\n' "execute-keys '<dquote>tZ'"
-        tag="${kak_selections##*</}"
-        tag="${tag%>}"
-        printf '%s\n' "execute-keys s<lt>/$tag<ret><a-c><lt>/$kak_text<esc>"
-        printf '%s\n' "execute-keys <dquote>tz<a-:><a-semicolon>ms<lt>$tag<ret><a-c><lt>$kak_text<esc>"
-        printf '%s\n' "execute-keys F<gt>l"
-        printf '%s\n' "_match-around-tag"
+      evaluate-commands -save-regs 'ts' %{
+        execute-keys '"tZ' # Select the whole tag
+        execute-keys '<a-:><a-semicolon>e' # Get tag start
+        execute-keys '"sZ' # Save tag start
+        execute-keys '"tz' # Select whole tag
+        execute-keys '<a-:><semicolon><a-/><lt>/<ret>e' # Get tag end
+        execute-keys '"s<a-z>a' # Select tag start and end
+        execute-keys "c%val{text}<esc>" # Change text
+        execute-keys '"tz' # Select whole tag
       }
     }
   }
