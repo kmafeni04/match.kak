@@ -13,6 +13,7 @@ a,<lt>,<gt>:   Angle block
 `,g:           Grave quote string
 w:             word
 <a-w>:         WORD
+u:             argument
 i:             indent
 p:             paragraph
 t:             XML tag
@@ -209,7 +210,7 @@ t:             XML tag
         case "$kak_key" in
           "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
           "t") printf '%s\n' "_match-inside-tag" ;;
-          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
+          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"u"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
             printf '%s\n' "execute-keys <a-i>${kak_key}<ret>"
             ;;
           *) printf '%s\n' "execute-keys <a-i>c${kak_key},${kak_key}<ret>" ;;
@@ -229,7 +230,7 @@ t:             XML tag
         case "$kak_key" in
           "<esc>"|"<left>"|"<right>"|"<up>"|"<down>"|"<backspace>"|"<del>"|"<ret>"|"<home>"|"<end>") printf '%s\n' "execute-keys :nop<ret>" ;;
           "t") printf '%s\n' _match-around-tag ;;
-          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
+          "b"|"("|")"|"B"|"{"|"}"|"r"|"["|"]"|"a"|"g"|"<lt>"|"<gt>"|"Q"|"q"|"w"|"<a-w>"|"u"|"|"|"\\"|"*"|"i"|"p"|'.'|','|'?'|'^'|"<plus>"|'$')
             printf '%s\n' "execute-keys <a-a>${kak_key}<ret>"
             ;;
           *) printf '%s\n' "execute-keys <a-a>c${kak_key},${kak_key}<ret>" ;;
@@ -253,6 +254,7 @@ t:             XML tag
           "Q") printf '%s\n' 'execute-keys /<dquote><ret><a-a><dquote><ret>' ;;
           "w") printf '%s\n' "execute-keys /\w+<ret><a-i>w" ;;
           "<a-w>") printf '%s\n' "execute-keys /\S+<ret><a-i><a-w>" ;;
+          "u") printf '%s\n' "execute-keys /\\(|\\{|\\[|,|\;)<ret>l<a-i>u" ;; #] } )
           "t") printf '%s\n' "execute-keys '<a-:><a-semicolon><semicolon>/<lt>\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>l:_match-around-tag<ret>'" ;;
           "i") printf '%s\n' "execute-keys /^\h+<ret><a-a>i<a-:><a-semicolon><ret>";;
           "p") printf '%s\n' "execute-keys /^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
@@ -278,6 +280,8 @@ t:             XML tag
           "Q") printf '%s\n' 'execute-keys <a-/><dquote><ret><a-a><dquote><ret>' ;;
           "w") printf '%s\n' "execute-keys <a-/>\w+<ret><a-i>w" ;;
           "<a-w>") printf '%s\n' "execute-keys <a-/>\S+<ret><a-i><a-w>" ;;
+          "u") #( { [ \              # Used case I'm too lazy to pick the right characters to stop this from breaking
+            printf '%s\n' "execute-keys <a-/>\\)|\\}|\\]|,|\;<ret>h<a-i>u" ;;
           "t") printf '%s\n' "execute-keys '<a-/><lt>/?\w[\w-0-9]*[^<gt>]*[^/]<gt><ret>m:_match-around-tag<ret>'" ;;
           "i") printf '%s\n' "execute-keys <a-/>^\h+<ret><a-a>i<a-:><ret>";;
           "p") printf '%s\n' "execute-keys <a-/>^[^\n]<ret><a-i>p<a-:><a-semicolon>" ;;
